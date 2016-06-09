@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+[[ ! $(pgrep -f 'sxhkd') ]] && sxhkd &
+[[ ! $(pgrep -f 'dunst') ]] && dunst &
+[[ ! $(pgrep -f 'compton') ]] && compton -b --config ~/.config/compton/compton.conf

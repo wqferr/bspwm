@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+[[ ! $(pgrep -f 'wallpaper') ]] && ~/.config/bspwm/wallpaper &
+[[ ! $(pgrep -f 'panel') ]] && ~/.config/bspwm/panel &
+
+sleep 5
+[[ ! $(pgrep -f 'displays') ]] && ~/.config/bspwm/displays &

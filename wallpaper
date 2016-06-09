@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if [[ ! -f '/tmp/.wallpaper' ]]; then
+  randomPicture="${HOME}/pictures/wallpapers/$(ls ${HOME}/pictures/wallpapers | sort -R | head -n 1)"
+  feh --no-fehbg --bg-fill "${randomPicture}"
+  echo "${randomPicture}" > '/tmp/.wallpaper'
+fi
