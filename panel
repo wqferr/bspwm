@@ -3,7 +3,7 @@
 #https://github.com/horst3180/arc-theme/blob/master/common/gtk-3.0/3.20/gtk-darker.css
 
 #BAR_BACKGROUND="#353945"
-XRES_TEXT=$(cat /tmp/.theme/Xresources)
+XRES_TEXT=$(cat ~/.Xresources)
 BAR_BACKGROUND=$(echo "${XRES_TEXT}" | grep 'define base00' | awk -F ' ' '{print $3}')
 #BAR_BACKGROUND="#"$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 6 | head -n 1)
 
