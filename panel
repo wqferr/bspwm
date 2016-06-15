@@ -2,7 +2,9 @@
 
 #https://github.com/horst3180/arc-theme/blob/master/common/gtk-3.0/3.20/gtk-darker.css
 
-BAR_BACKGROUND="#353945"
+#BAR_BACKGROUND="#353945"
+XRES_TEXT=$(cat /tmp/.theme/Xresources)
+BAR_BACKGROUND=$(echo "${XRES_TEXT}" | grep 'define base00' | awk -F ' ' '{print $3}')
 #BAR_BACKGROUND="#"$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 6 | head -n 1)
 
 FONT_SIZE=10
@@ -17,9 +19,11 @@ SYMBOL_WORKSPACE_NORMAL=""
 SYMBOL_WORKSPACE_ACTIVE=""
 SYMBOL_WORKSPACE_URGENT=""
 
-COLOR_INACTIVE="#666666"
-COLOR_ACTIVE="#DFDFDF"
-COLOR_URGENT="#CC6666"
+#COLOR_INACTIVE="#666666"
+#COLOR_ACTIVE="#DFDFDF"
+COLOR_INACTIVE=$(echo "${XRES_TEXT}" | grep 'define base03' | awk -F ' ' '{print $3}')
+COLOR_ACTIVE=$(echo "${XRES_TEXT}" | grep 'define base0A' | awk -F ' ' '{print $3}')
+COLOR_URGENT=$(echo "${XRES_TEXT}" | grep 'define base06' | awk -F ' ' '{print $3}')
 
 SYMBOL_FULL=""
 SYMBOL_CHARGING=""
@@ -30,22 +34,27 @@ SEPARATOR_RIGHT="%{F#888888}%{F-}"
 bspc config top_padding "$BAR_HEIGHT}"
 
 function get_workspaces(){
-
+  local workSpaces=$(bspc wm -g)
   for i in `seq 2 11`; do
     # query bspc control for the status of the workspaces
-    local ws=$(bspc wm -g | cut -d ":" -f ${i})
+    local ws=$(echo "${workSpaces}" | cut -d ":" -f ${i})
+    local wsName=$(echo "${ws}" | cut -c 2-)
     # check for urgency
     if [[ "${ws}" == *u* ]]; then
-      echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
+      #echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
+      echo -n "%{F${COLOR_URGENT}}${wsName} "
     # check for focused workspace
     elif [[ "${ws}" == *O* || "${ws}" == *F* ]]; then
-      echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
+      #echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
+      echo -n "%{F${COLOR_ACTIVE}}${wsName} "
     # unfocused, non-free desktop color
     elif [[ "${ws}" == *o* ]]; then
-      echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      echo -n "%{F${COLOR_INACTIVE}}${wsName} "
     # free desktop color
     else
-      echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      echo -n "%{F${COLOR_INACTIVE}}${wsName} "
     fi
     #echo -ne "${ws:1} " # print workspaces to conky
   done
@@ -137,7 +146,7 @@ function get_network(){
   local networkQuality=$(grep wlp3s0 /proc/net/wireless | awk '{ print int($3 * 100 / 70) }')
   local networkSSID=$(iw dev wlp3s0 link | grep 'SSID' | awk -F ': ' '{print $2}')
 
-  local suffixString=" ${networkQuality}% #${networkSSID}"
+  local suffixString=""
 
   [[ "${networkState}" == 'up' ]] && echo -n "%{F${COLOR_ACTIVE}}" || echo -n "%{F${COLOR_INACTIVE}}"
   echo -n "${suffixString}"
@@ -156,13 +165,27 @@ function get_packages(){
   echo -n "%{F-}"
 }
 
+function get_title(){
+  local windowTitle=$(xdotool getwindowfocus getwindowname)
+  local maxLength=50
+
+  if [[ "${#windowTitle}" -gt "${maxLength}" ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}⁖ ${windowTitle::$maxLength} …"
+  elif [[ "${#windowTitle}" -gt 0 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}⁖ ${windowTitle}"
+  else
+    echo -n "%{F${COLOR_INACTIVE}}⁖ (empty)"
+  fi
+  echo -n "%{F-}"
+}
+
 packageUpdates=$(get_packages)
 
 while [[ 1 ]]; do
-  echo -n "%{l}"
-  echo -n "%{c}$(get_workspaces)"
+  echo -n "%{l} $(get_workspaces)"
+  echo -n "%{c}$(get_title)"
   #echo -n "%{r}$(get_power) | $(get_packages) | $(get_microphone) | $(get_bluetooth) | $(get_network) | $(get_volume) "
-  echo -n "%{r}${packageUpdates} | $(get_power) | $(get_network) | $(get_volume) | %{F${COLOR_ACTIVE}} $(date +%X) "
+  echo -n "%{r}$(get_power) | $(get_network) | $(get_volume) | %{F${COLOR_ACTIVE}} $(date +%X) "
   echo ""
   sleep 0.15
 done | lemonbar -f "${NORMAL_FONT}:size=${FONT_SIZE}" -f "${SYMBOL_FONT}:size=${FONT_SIZE}" -B "${BAR_BACKGROUND}" -F "${COLOR_ACTIVE}" -g "x${BAR_HEIGHT}"
