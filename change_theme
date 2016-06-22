@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+
+"${scriptDir}/change_wallpaper" "${1}"
+
+themeDir=$(cat /tmp/.wallpaper | img2thm | awk -F '"' '{print $4}' | tr -d '"')
+
+if [[ ! -d "${themeDir}" ]]; then
+  notify-send "Warning: Cannot change theme: Theme directory \"${themeDir}\" not found."
+  exit
+fi
+
+cp "${themeDir}/Xresources" ~/.Xresources
+cp "${themeDir}/termcolors" ~/.config/bash/colors
+#cp "${themeDir}/gtk.css" ~/.themes/Custom/gtk-3.0/gtk.css
+#cp "${themeDir}/settings.ini" ~/.themes/Custom/gtk-3.0/settings.ini
+
+# Extract colors
+XRES_TEXT=$(cat ~/.Xresources)
+base00=$(echo "${XRES_TEXT}" | grep 'define base00' | awk -F ' ' '{print $3}')
+base00=$(echo "${XRES_TEXT}" | grep 'define base01' | awk -F ' ' '{print $3}')
+base08=$(echo "${XRES_TEXT}" | grep 'define base08' | awk -F ' ' '{print $3}')
+base0A=$(echo "${XRES_TEXT}" | grep 'define base0A' | awk -F ' ' '{print $3}')
+base0C=$(echo "${XRES_TEXT}" | grep 'define base0C' | awk -F ' ' '{print $3}')
+base0F=$(echo "${XRES_TEXT}" | grep 'define base0F' | awk -F ' ' '{print $3}')
+
+# Update panel
+kill $(pgrep -f panel) 2>&1 >/dev/null
+~/.config/bspwm/panel &
+
+# Update bspwm
+bspc config active_border_color "${base0F}"
+bspc config focused_border_color "${base0F}"
+bspc config normal_border_color "${base01}"
+bspc config presel_border_color "${base0C}"
+bspc config urgent_border_color "${base08}"
+
+# Update dunst
+sed -i 's/background.*/background = "'"${base00}"'"/' ~/.config/dunst/dunstrc
+#sed -i 's/foreground.*/foreground = "'"${LOW_COLOR}"'"/1' ~/.config/dunst/dunstrc
+sed -i 's/foreground.*/foreground = "'"${base0A}"'"/g' ~/.config/dunst/dunstrc
+#sed -i 's/foreground.*/foreground = "'"${CRT_COLOR}"'"/3' ~/.config/dunst/dunstrc
+kill $(pgrep -f dunst) 2>&1 >/dev/null
+dunst &
+
+#"${scriptDir}/reload_theme"
+col2sys

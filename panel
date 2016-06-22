@@ -21,7 +21,7 @@ SYMBOL_WORKSPACE_URGENT=""
 
 #COLOR_INACTIVE="#666666"
 #COLOR_ACTIVE="#DFDFDF"
-COLOR_INACTIVE=$(echo "${XRES_TEXT}" | grep 'define base03' | awk -F ' ' '{print $3}')
+COLOR_INACTIVE=$(echo "${XRES_TEXT}" | grep 'define base05' | awk -F ' ' '{print $3}')
 COLOR_ACTIVE=$(echo "${XRES_TEXT}" | grep 'define base0A' | awk -F ' ' '{print $3}')
 COLOR_URGENT=$(echo "${XRES_TEXT}" | grep 'define base06' | awk -F ' ' '{print $3}')
 
@@ -180,6 +180,9 @@ function get_title(){
 }
 
 packageUpdates=$(get_packages)
+
+# Wait 2 seconds in the background and put the lemonbar ontop of the root window
+(sleep 2 && xdo above -t $(xdo id -n root) $(xdo id -a bar)) &
 
 while [[ 1 ]]; do
   echo -n "%{l} $(get_workspaces)"

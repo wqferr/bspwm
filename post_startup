@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-[[ ! $(pgrep -f 'wallpaper') ]] && ~/.config/bspwm/wallpaper &
-[[ ! $(pgrep -f 'panel') ]] && ~/.config/bspwm/panel &
+#~/.config/bash/scripts/theme-from-wallpaper 'y' &
+[[ ! $(pgrep -f 'wallpaper') ]] && ~/.config/bspwm/change_theme 'y' &
+#[[ ! $(pgrep -f 'panel') ]] && ~/.config/bspwm/panel &
 
 sleep 5
 [[ ! $(pgrep -f 'displays') ]] && ~/.config/bspwm/displays &

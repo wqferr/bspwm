@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-return
+exit
 
 # Desktop 1: Internet
 bspc rule -a Firefox desktop='^1'
