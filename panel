@@ -179,7 +179,7 @@ function get_title(){
   echo -n "%{F-}"
 }
 
-packageUpdates=$(get_packages)
+#packageUpdates=$(get_packages)
 
 # Wait 2 seconds in the background and put the lemonbar ontop of the root window
 (sleep 2 && xdo above -t $(xdo id -n root) $(xdo id -a bar)) &

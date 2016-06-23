@@ -9,6 +9,7 @@ while [[ 1 ]]; do
 
   activeDisplays=$(echo "${xrandrOut}" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/" | tr '\n' ' ')
   displayFile='/tmp/.displays'
+  desktopFile='/tmp/.desktop'
   primaryDisplay=""
 
   if [[ -f "${displayFile}" ]]; then
@@ -35,7 +36,7 @@ while [[ 1 ]]; do
 
   if [[ "${change}" == "yes" ]]; then
     primaryMode=$(xrandr | grep "${primaryDisplay}" -A 1 | tail -n 1 | awk -F ' ' '{print $1}')
-    notify-send -u low "Change display to \"${primaryDisplay}\"."
+    notify-send -u normal "Change display to \"${primaryDisplay}\"."
 
     cmd='xrandr'
     for displayName in ${activeDisplays}; do
@@ -46,9 +47,11 @@ while [[ 1 ]]; do
       fi
     done
 
+    echo "$(bspc query -D -d)" > "${desktopFile}"
     ${cmd}
 
     echo "${activeDisplays}" > "${displayFile}"
+    ~/.config/bspwm/bspwmrc 'refresh'
   fi
 
   if  [[ "${1}" == 'once' ]]; then

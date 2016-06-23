@@ -3,7 +3,7 @@
 if [[ -f "${1}" ]]; then
   wallpaperImage="${1}"
 else
-  allImages=$(find "${HOME}/pictures/wallpapers/" -maxdepth 1 -type f -exec file {} \; | awk -F: '{if ($2 ~/image/) print $1}')
+  allImages=$(find "${HOME}/pictures/wallpapers" -maxdepth 1 -type f -exec file {} \; | awk -F: '{if ($2 ~/image/) print $1}')
   wallpaperImage=$(echo "${allImages}" | sort -R | head -n 1)
 fi
 
